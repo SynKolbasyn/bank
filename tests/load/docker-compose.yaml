@@ -1,0 +1,74 @@
+services:
+  postgres:
+    mem_limit: 512m
+    cpus: 4
+    image: dhi.io/postgres:18
+    container_name: bank-postgres
+    hostname: ${POSTGRES_HOST:-postgres}
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER:-user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_DB=${POSTGRES_DATABASE:-database}
+      - PGPORT=${POSTGRES_PORT:-5432}
+    expose:
+      - ${POSTGRES_PORT:-5432}
+    shm_size: 128mb
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER:-user}", "-d", "${POSTGRES_DATABASE:-database}"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+  
+  redpanda:
+    mem_limit: 512m
+    cpus: 4
+    image: redpandadata/redpanda:v26.1.5
+    container_name: bank-redpanda
+    hostname: ${REDPANDA_HOST:-redpanda}
+    command:
+      - redpanda
+      - start
+      - --kafka-addr 0.0.0.0:${REDPANDA_PORT:-9092}
+      - --advertise-kafka-addr ${REDPANDA_HOST:-redpanda}:${REDPANDA_PORT:-9092}
+      - --mode dev-container
+      - --smp 1
+      - --default-log-level=info
+    expose:
+      - ${REDPANDA_PORT:-9092}
+    healthcheck:
+      test: ["CMD", "rpk", "cluster", "info"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    restart: unless-stopped
+
+  gateway:
+    mem_limit: 512m
+    cpus: 4
+    build: ../../
+    container_name: bank-gateway
+    hostname: ${GATEWAY_HOST:-gateway}
+    environment:
+      - SERVER_HOST=${GATEWAY_HOST:-gateway}
+      - SERVER_PORT=${GATEWAY_PORT:-80}
+      - AUTH_SECRET=${AUTH_SECRET:-secret}
+      - POSTGRES_HOST=${POSTGRES_HOST:-postgres}
+      - POSTGRES_PORT=${POSTGRES_PORT:-5432}
+      - POSTGRES_USER=${POSTGRES_USER:-user}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-password}
+      - POSTGRES_DATABASE=${POSTGRES_DATABASE:-database}
+      - REDPANDA_HOSTS=${REDPANDA_HOST:-redpanda}:${REDPANDA_PORT:-9092}
+    ports:
+      - ${GATEWAY_PORT:-80}:${GATEWAY_PORT:-80}
+    healthcheck:
+      test: ["CMD", "./healthcheck"]
+      interval: 10s
+      timeout: 10s
+      retries: 10
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redpanda:
+        condition: service_healthy
+    restart: unless-stopped
