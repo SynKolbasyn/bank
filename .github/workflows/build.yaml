@@ -35,7 +35,7 @@ jobs:
           context: ./gateway/
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/SynKolbasyn/bank:gateway
+          tags: ghcr.io/synkolbasyn/bank:gateway
   
   processor:
     runs-on: ubuntu-latest
@@ -67,4 +67,4 @@ jobs:
           context: ./processor/
           file: ./Dockerfile
           push: true
-          tags: ghcr.io/SynKolbasyn/bank:processor
+          tags: ghcr.io/synkolbasyn/bank:processor
