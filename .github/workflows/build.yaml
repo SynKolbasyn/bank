@@ -33,7 +33,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: ./gateway/
-          file: ./Dockerfile
+          file: ./gateway/Dockerfile
           push: true
           tags: ghcr.io/synkolbasyn/bank:gateway
   
@@ -65,6 +65,6 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: ./processor/
-          file: ./Dockerfile
+          file: ./processor/Dockerfile
           push: true
           tags: ghcr.io/synkolbasyn/bank:processor
