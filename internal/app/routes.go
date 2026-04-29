@@ -9,11 +9,11 @@ import (
 	echomw "github.com/labstack/echo/v5/middleware"
 )
 
-func setRoutes(server *echo.Echo, config *config.Config, handlers *Handlers) {
-	jwtConfig := middleware.NewJWTConfig(config.Auth.Secret)
+func setRoutes(server *echo.Echo, cfg *config.Config, handlers *Handlers) {
+	jwtConfig := middleware.NewJWTConfig(cfg.Auth.Secret)
 
 	server.Use(echomw.Recover())
-	server.Use(echoprometheus.NewMiddleware("api-gateway"))
+	server.Use(echoprometheus.NewMiddleware("gateway"))
 	server.Use(echomw.RequestLogger())
 	server.Use(echomw.CORS("http://localhost:5173", "http://localhost:4173", "http://localhost:80"))
 

@@ -11,7 +11,7 @@ type Handlers struct {
 	payments *handler.Payments
 }
 
-func NewHandlers(config *config.Config, services *Services) *Handlers {
+func NewHandlers(cfg *config.Config, services *Services) *Handlers {
 	return &Handlers{
 		health: handler.NewHealth(services.health),
 		auth: handler.NewAuth(services.auth),

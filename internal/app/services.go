@@ -12,10 +12,10 @@ type Services struct {
 	payments service.IPayments
 }
 
-func NewServices(config *config.Config, repositories *Repositories, clientRedpanda *kgo.Client) *Services {
+func NewServices(cfg *config.Config, repositories *Repositories, clientRedpanda *kgo.Client) *Services {
 	return &Services{
 		health: service.NewHealth(repositories.health),
-		auth: service.NewAuth(repositories.user, config.Auth.Secret),
+		auth: service.NewAuth(repositories.user, cfg.Auth.Secret),
 		payments: service.NewPayments(repositories.payments, service.NewNotificationManager(clientRedpanda, "payments")),
 	}
 }

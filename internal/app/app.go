@@ -1,6 +1,8 @@
 package app
 
 import (
+	"log/slog"
+
 	"github.com/SynKolbasyn/bank/config"
 	"github.com/SynKolbasyn/bank/internal/domain"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -8,15 +10,16 @@ import (
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
-func NewServer(config *config.Config, pool *pgxpool.Pool, clientRedpanda *kgo.Client) *echo.Echo {
+func NewServer(cfg *config.Config, logger *slog.Logger, pool *pgxpool.Pool, clientRedpanda *kgo.Client) *echo.Echo {
 	server := echo.New()
+	server.Logger = logger
 	server.Validator = domain.NewValidator()
 
 	repositories := NewRepositories(pool)
-	services := NewServices(config, repositories, clientRedpanda)
-	handlers := NewHandlers(config, services)
+	services := NewServices(cfg, repositories, clientRedpanda)
+	handlers := NewHandlers(cfg, services)
 
-	setRoutes(server, config, handlers)
+	setRoutes(server, cfg, handlers)
 
 	return server
 }
