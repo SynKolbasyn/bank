@@ -1,4 +1,5 @@
-/build/
+/gateway/build/
+/processor/build/
 /commands.md
 /context.bash
 /context.md
