@@ -22,6 +22,7 @@ func NewPayments(servicePayments service.IPayments) *Payments {
 
 func (p *Payments) Create(ctx *echo.Context) error {
 	var paymentRequest model.PaymentRequest
+
 	err := ctx.Bind(&paymentRequest)
 	if err != nil {
 		return domain.ErrorResponse(
@@ -29,6 +30,7 @@ func (p *Payments) Create(ctx *echo.Context) error {
 			domain.NewAppError(http.StatusBadRequest, err),
 		)
 	}
+
 	err = ctx.Validate(paymentRequest)
 	if err != nil {
 		return domain.ErrorResponse(
@@ -56,6 +58,7 @@ func (p *Payments) Get(ctx *echo.Context) error {
 			ctx, domain.NewAppError(http.StatusBadRequest, err),
 		)
 	}
+
 	payments, err := p.servicePayments.Get(ctx.Request().Context(), userID)
 	if err != nil {
 		return domain.ErrorResponse(ctx, err)

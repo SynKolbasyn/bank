@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"errors"
 	"io"
 	"log/slog"
 	"net/http"
@@ -14,48 +15,79 @@ import (
 	"github.com/SynKolbasyn/bank/gateway/pkg/logger"
 )
 
+var ErrStatusCode = errors.New("resp.StatusCode != http.StatusOK")
+
 func main() {
+	err := check()
+	if err != nil {
+		os.Exit(1)
+	}
+}
+
+func check() error {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
 	cfg, err := config.LoadServer()
 	if err != nil {
 		slog.ErrorContext(ctx, "config.LoadServer", slog.String("error", err.Error()))
-		os.Exit(1)
+
+		return err
 	}
 
 	slog.SetDefault(logger.NewLogger(cfg.LogLevel))
 
-	healthURL := url.URL{
-		Scheme: "http",
-		Host: cfg.Address(),
-		Path: "/health",
-	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, healthURL.String(), nil)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, getURL(cfg.Address()), nil)
 	if err != nil {
 		slog.ErrorContext(ctx, "http.NewRequestWithContext", slog.String("error", err.Error()))
-		os.Exit(1)
+
+		return err
 	}
+
 	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		slog.ErrorContext(ctx, "http.DefaultClient.Do", slog.String("error", err.Error()))
-		os.Exit(1)
+
+		return err
 	}
-	defer func (ctx context.Context, body io.ReadCloser)  {
-		err := body.Close()
+
+	defer func() {
+		err := resp.Body.Close()
 		if err != nil {
 			slog.WarnContext(ctx, "body.Close", slog.String("error", err.Error()))
 		}
-	}(ctx, resp.Body)
-    if resp.StatusCode != http.StatusOK {
+	}()
+
+	if resp.StatusCode != http.StatusOK {
 		body, err := io.ReadAll(resp.Body)
+
 		var data slog.Attr
 		if err != nil {
 			data = slog.String("error", err.Error())
 		} else {
 			data = slog.String("body", string(body))
 		}
-		slog.ErrorContext(ctx, "resp.StatusCode != http.StatusOK", slog.Int("status_code", resp.StatusCode), slog.String("status", resp.Status), data)
-		os.Exit(1)
+
+		slog.ErrorContext(
+			ctx,
+			ErrStatusCode.Error(),
+			slog.Int("status_code", resp.StatusCode),
+			slog.String("status", resp.Status),
+			data,
+		)
+
+		return ErrStatusCode
 	}
+
+	return nil
+}
+
+func getURL(addr string) string {
+	healthURL := url.URL{
+		Scheme: "http",
+		Host:   addr,
+		Path:   "/health",
+	}
+
+	return healthURL.String()
 }

@@ -35,10 +35,12 @@ func (u *User) Create(ctx context.Context, email, password string) (uuid.UUID, e
 	err := u.pool.QueryRow(ctx, query, email, password).Scan(&userID)
 	if err != nil {
 		var pgErr *pgconn.PgError
+
 		statusCode := http.StatusInternalServerError
 		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.UniqueViolation {
 			statusCode = http.StatusConflict
 		}
+
 		return uuid.UUID{}, domain.NewAppError(statusCode, err)
 	}
 
@@ -52,8 +54,10 @@ func (u *User) Get(ctx context.Context, email string) (uuid.UUID, string, error)
 		WHERE email = $1::VARCHAR(256);
 	`
 
-	var userID uuid.UUID
-	var password string
+	var (
+		userID   uuid.UUID
+		password string
+	)
 
 	err := u.pool.QueryRow(ctx, query, email).Scan(&userID, &password)
 	if err != nil {
@@ -61,6 +65,7 @@ func (u *User) Get(ctx context.Context, email string) (uuid.UUID, string, error)
 		if errors.Is(err, sql.ErrNoRows) {
 			statusCode = http.StatusNotFound
 		}
+
 		return uuid.UUID{}, "", domain.NewAppError(statusCode, err)
 	}
 

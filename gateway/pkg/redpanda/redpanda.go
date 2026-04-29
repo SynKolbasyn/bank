@@ -7,5 +7,6 @@ func NewClient(hosts []string, topics []string) (*kgo.Client, error) {
 	if len(topics) != 0 {
 		opts = append(opts, kgo.ConsumeTopics(topics...))
 	}
+
 	return kgo.NewClient(opts...)
 }

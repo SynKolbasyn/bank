@@ -8,6 +8,8 @@ import (
 )
 
 func TestLoadConfig(t *testing.T) {
+	t.Parallel()
+
 	config, err := config.LoadConfig()
 	require.NoError(t, err)
 	require.NotNil(t, config)
@@ -19,6 +21,7 @@ func TestLoadConfig(t *testing.T) {
 
 func TestLoadConfigErr(t *testing.T) {
 	t.Setenv(string(config.KeyServerLogLevel), "UNKNOWN")
+
 	config, err := config.LoadConfig()
 	require.Error(t, err)
 	require.Nil(t, config)

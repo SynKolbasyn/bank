@@ -2,7 +2,6 @@ package domain_test
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log/slog"
 	"net/http"
@@ -18,7 +17,7 @@ import (
 
 func TestErrorResponse(t *testing.T) {
 	t.Parallel()
-	
+
 	testData := []int{
 		http.StatusOK,
 		http.StatusBadRequest,
@@ -33,29 +32,30 @@ func TestErrorResponse(t *testing.T) {
 		http.StatusServiceUnavailable,
 	}
 
-	e := echo.New()
-	e.Logger = logger.NewLogger(slog.LevelError + 2)
+	server := echo.New()
+	server.Logger = logger.NewLogger(slog.LevelError + 2)
 
 	for i, data := range testData {
-		t.Run(fmt.Sprintf("error-%d", i + 1), func(t *testing.T) {
+		t.Run(fmt.Sprintf("error-%d", i+1), func(t *testing.T) {
 			t.Parallel()
 
 			require.NotNil(t, data)
 
-			r, err := http.NewRequestWithContext(t.Context(), "", "", nil)
+			req, err := http.NewRequestWithContext(t.Context(), "", "", nil)
 			require.NoError(t, err)
-			require.NotNil(t, r)
+			require.NotNil(t, req)
 
-			w := httptest.NewRecorder()
-			require.NotNil(t, w)
+			rec := httptest.NewRecorder()
+			require.NotNil(t, rec)
 
-			ctx := e.NewContext(r, w)
+			ctx := server.NewContext(req, rec)
 
 			require.NoError(t, domain.ErrorResponse(ctx, domain.NewAppError(data)))
 
-			require.Equal(t, data, w.Code)
+			require.Equal(t, data, rec.Code)
+
 			var resp model.ErrorResponse
-			require.NoError(t, json.NewDecoder(w.Body).Decode(&resp))
+			require.NoError(t, json.NewDecoder(rec.Body).Decode(&resp))
 			require.Equal(t, resp.Error, http.StatusText(data))
 		})
 	}
@@ -64,50 +64,32 @@ func TestErrorResponse(t *testing.T) {
 func TestUnknownErrorResponse(t *testing.T) {
 	t.Parallel()
 
-	e := echo.New()
-	e.Logger = logger.NewLogger(slog.LevelError + 2)
-	
-	testErr := errors.New("some unknown error")
+	server := echo.New()
+	server.Logger = logger.NewLogger(slog.LevelError + 2)
+
 	testCode := http.StatusInternalServerError
 
-	r, err := http.NewRequestWithContext(t.Context(), "", "", nil)
-	require.NoError(t, err)
-	require.NotNil(t, r)
+	testData := []error{ErrTest, nil}
 
-	w := httptest.NewRecorder()
-	require.NotNil(t, w)
+	for i, data := range testData {
+		t.Run(fmt.Sprintf("ErrorResponse-%d", i+1), func(t *testing.T) {
+			t.Parallel()
+			req, err := http.NewRequestWithContext(t.Context(), "", "", nil)
+			require.NoError(t, err)
+			require.NotNil(t, req)
 
-	ctx := e.NewContext(r, w)
+			rec := httptest.NewRecorder()
+			require.NotNil(t, rec)
 
-	require.NoError(t, domain.ErrorResponse(ctx, testErr))
+			ctx := server.NewContext(req, rec)
 
-	require.Equal(t, testCode, w.Code)
-	var resp model.ErrorResponse
-	require.NoError(t, json.NewDecoder(w.Body).Decode(&resp))
-	require.Equal(t, resp.Error, http.StatusText(testCode))
-}
+			require.NoError(t, domain.ErrorResponse(ctx, data))
 
-func TestNilErrorResponse(t *testing.T) {
-	t.Parallel()
+			require.Equal(t, testCode, rec.Code)
 
-	e := echo.New()
-	e.Logger = logger.NewLogger(slog.LevelError + 2)
-	
-	testCode := http.StatusInternalServerError
-
-	r, err := http.NewRequestWithContext(t.Context(), "", "", nil)
-	require.NoError(t, err)
-	require.NotNil(t, r)
-
-	w := httptest.NewRecorder()
-	require.NotNil(t, w)
-
-	ctx := e.NewContext(r, w)
-
-	require.NoError(t, domain.ErrorResponse(ctx, nil))
-
-	require.Equal(t, testCode, w.Code)
-	var resp model.ErrorResponse
-	require.NoError(t, json.NewDecoder(w.Body).Decode(&resp))
-	require.Equal(t, resp.Error, http.StatusText(testCode))
+			var resp model.ErrorResponse
+			require.NoError(t, json.NewDecoder(rec.Body).Decode(&resp))
+			require.Equal(t, resp.Error, http.StatusText(testCode))
+		})
+	}
 }

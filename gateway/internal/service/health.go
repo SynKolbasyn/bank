@@ -20,10 +20,12 @@ func NewHealth(repositoryHealth repository.IHealth) *Health {
 
 func (h *Health) Health(ctx context.Context) model.HealthResponse {
 	database := http.StatusOK
+
 	err := h.repositoryHealth.Health(ctx)
 	if err != nil {
 		database = http.StatusServiceUnavailable
 	}
+
 	return model.HealthResponse{
 		Databse: http.StatusText(database),
 	}

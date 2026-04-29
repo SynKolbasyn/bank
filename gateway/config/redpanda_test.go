@@ -9,10 +9,10 @@ import (
 )
 
 func TestLoadRedpanda(t *testing.T) {
-	testData := []struct{
-		Hosts string
+	testData := []struct {
+		Hosts    string
 		Expected []string
-	} {
+	}{
 		{"localhost", []string{"localhost"}},
 		{"localhost:9092", []string{"localhost:9092"}},
 		{"first,second", []string{"first", "second"}},
@@ -21,7 +21,7 @@ func TestLoadRedpanda(t *testing.T) {
 	}
 
 	for i, data := range testData {
-		t.Run(fmt.Sprintf("hosts-%d", i + 1), func(t *testing.T) {
+		t.Run(fmt.Sprintf("hosts-%d", i+1), func(t *testing.T) {
 			t.Setenv(string(config.KeyRedpandaHosts), data.Hosts)
 
 			redpanda := config.LoadRedpanda()

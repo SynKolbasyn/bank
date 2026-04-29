@@ -23,5 +23,6 @@ func (h *Health) Health(ctx context.Context) error {
 	if err != nil {
 		return domain.NewAppError(http.StatusServiceUnavailable, err)
 	}
+
 	return nil
-} 
+}

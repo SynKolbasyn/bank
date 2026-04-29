@@ -8,6 +8,7 @@ type Redpanda struct {
 
 func LoadRedpanda() *Redpanda {
 	hosts := KeyRedpandaHosts.GetValueDefault("localhost:9092")
+
 	return &Redpanda{
 		Hosts: strings.Split(hosts, ","),
 	}

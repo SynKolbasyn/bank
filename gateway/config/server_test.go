@@ -10,11 +10,11 @@ import (
 )
 
 func TestLoadServerAddress(t *testing.T) {
-	testData := []struct{
-		Host string
-		Port string
+	testData := []struct {
+		Host     string
+		Port     string
 		Expected string
-	} {
+	}{
 		{"localhost", "80", "localhost:80"},
 		{"localhost", "8080", "localhost:8080"},
 		{"specialhost", "443", "specialhost:443"},
@@ -22,7 +22,7 @@ func TestLoadServerAddress(t *testing.T) {
 	}
 
 	for i, data := range testData {
-		t.Run(fmt.Sprintf("host-%d", i + 1), func(t *testing.T) {
+		t.Run(fmt.Sprintf("host-%d", i+1), func(t *testing.T) {
 			t.Setenv(string(config.KeyServerHost), data.Host)
 			t.Setenv(string(config.KeyServerPort), data.Port)
 
@@ -35,11 +35,11 @@ func TestLoadServerAddress(t *testing.T) {
 }
 
 func TestLoadServerLogLevel(t *testing.T) {
-	testData := []struct{
+	testData := []struct {
 		LogLevel string
 		Expected slog.Level
-		IsError bool
-	} {
+		IsError  bool
+	}{
 		{"DEBUG", slog.LevelDebug, false},
 		{"INFO", slog.LevelInfo, false},
 		{"WARN", slog.LevelWarn, false},
@@ -52,7 +52,7 @@ func TestLoadServerLogLevel(t *testing.T) {
 	}
 
 	for i, data := range testData {
-		t.Run(fmt.Sprintf("host-%d", i + 1), func(t *testing.T) {
+		t.Run(fmt.Sprintf("host-%d", i+1), func(t *testing.T) {
 			t.Setenv(string(config.KeyServerLogLevel), data.LogLevel)
 
 			server, err := config.LoadServer()

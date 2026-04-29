@@ -6,15 +6,15 @@ import (
 )
 
 type Repositories struct {
-	health repository.IHealth
-	user repository.IUser
+	health   repository.IHealth
+	user     repository.IUser
 	payments repository.IPayments
 }
 
 func NewRepositories(pool *pgxpool.Pool) *Repositories {
 	return &Repositories{
-		health: repository.NewHealth(pool),
-		user: repository.NewUser(pool),
+		health:   repository.NewHealth(pool),
+		user:     repository.NewUser(pool),
 		payments: repository.NewPayments(pool),
 	}
 }

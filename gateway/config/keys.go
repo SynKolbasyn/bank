@@ -3,8 +3,8 @@ package config
 import "github.com/SynKolbasyn/bank/gateway/pkg/config"
 
 const (
-	KeyServerHost = config.Key("SERVER_HOST")
-	KeyServerPort = config.Key("SERVER_PORT")
+	KeyServerHost     = config.Key("SERVER_HOST")
+	KeyServerPort     = config.Key("SERVER_PORT")
 	KeyServerLogLevel = config.Key("SERVER_LOG_LEVEL")
 
 	KeyAuthSecret = config.Key("AUTH_SECRET")

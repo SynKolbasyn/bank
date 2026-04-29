@@ -20,9 +20,10 @@ func (a *AppError) Error() string {
 	if a.err != nil {
 		return a.err.Error()
 	}
+
 	return ""
 }
 
 func (a *AppError) Unwrap() error {
-    return a.err
+	return a.err
 }

@@ -14,13 +14,13 @@ import (
 
 type Auth struct {
 	repositoryUser repository.IUser
-	secretKey []byte
+	secretKey      []byte
 }
 
 func NewAuth(repositoryUser repository.IUser, secretKey []byte) *Auth {
 	return &Auth{
 		repositoryUser: repositoryUser,
-		secretKey: secretKey,
+		secretKey:      secretKey,
 	}
 }
 
@@ -29,12 +29,12 @@ func (a *Auth) SignUp(ctx context.Context, user *model.SignRequest) (string, err
 	if err != nil {
 		return "", err
 	}
-	
-	id, err := a.repositoryUser.Create(ctx, user.Email, passwordHash);
+
+	id, err := a.repositoryUser.Create(ctx, user.Email, passwordHash)
 	if err != nil {
 		return "", err
 	}
-	
+
 	return a.generateToken(id)
 }
 
@@ -52,21 +52,21 @@ func (a *Auth) SignIn(ctx context.Context, user *model.SignRequest) (string, err
 	if !match {
 		return "", domain.NewAppError(http.StatusBadRequest)
 	}
-	
-	return a.generateToken(userID);	
+
+	return a.generateToken(userID)
 }
 
 func (a *Auth) generateToken(userID uuid.UUID) (string, error) {
 	claims := model.JWTAuthData{
-		UserID: userID, 
+		UserID: userID,
 	}
 
-    token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-    signed, err := token.SignedString(a.secretKey)
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-    if err != nil {
-        return "", err
-    }
-    
-    return signed, nil
+	signed, err := token.SignedString(a.secretKey)
+	if err != nil {
+		return "", err
+	}
+
+	return signed, nil
 }

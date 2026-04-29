@@ -10,14 +10,19 @@ import (
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
-func NewServer(cfg *config.Config, logger *slog.Logger, pool *pgxpool.Pool, clientRedpanda *kgo.Client) *echo.Echo {
+func NewServer(
+	cfg *config.Config,
+	logger *slog.Logger,
+	pool *pgxpool.Pool,
+	clientRedpanda *kgo.Client,
+) *echo.Echo {
 	server := echo.New()
 	server.Logger = logger
 	server.Validator = domain.NewValidator()
 
 	repositories := NewRepositories(pool)
 	services := NewServices(cfg, repositories, clientRedpanda)
-	handlers := NewHandlers(cfg, services)
+	handlers := NewHandlers(services)
 
 	setRoutes(server, cfg, handlers)
 

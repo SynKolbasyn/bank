@@ -19,5 +19,6 @@ func NewHealth(serviceHealth service.IHealth) *Health {
 
 func (h *Health) Health(ctx *echo.Context) error {
 	health := h.serviceHealth.Health(ctx.Request().Context())
+
 	return ctx.JSON(http.StatusOK, health)
 }

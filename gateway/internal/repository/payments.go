@@ -24,23 +24,35 @@ func NewPayments(pool *pgxpool.Pool) *Payments {
 	}
 }
 
-func (p *Payments) Create(ctx context.Context, userID uuid.UUID, payment model.PaymentRequest) (uuid.UUID, error) {
+func (p *Payments) Create(
+	ctx context.Context,
+	userID uuid.UUID,
+	payment model.PaymentRequest,
+) (uuid.UUID, error) {
 	query := `
 		INSERT INTO payments(sender_id, recipient_id, amount)
 		VALUES ($1, $2, $3)
 		RETURNING id, created_at;
 	`
-	var paymentID uuid.UUID
-	var created_at time.Time
-	err := p.pool.QueryRow(ctx, query, userID, payment.RecipientID, payment.Amount).Scan(&paymentID, &created_at)
+
+	var (
+		paymentID uuid.UUID
+		createdAt time.Time
+	)
+
+	err := p.pool.QueryRow(ctx, query, userID, payment.RecipientID, payment.Amount).
+		Scan(&paymentID, &createdAt)
 	if err != nil {
 		var pgErr *pgconn.PgError
+
 		statusCode := http.StatusInternalServerError
 		if errors.As(err, &pgErr) && pgErr.Code == pgerrcode.ForeignKeyViolation {
 			statusCode = http.StatusNotFound
 		}
+
 		return uuid.UUID{}, domain.NewAppError(statusCode, err)
 	}
+
 	return paymentID, nil
 }
 
@@ -51,14 +63,18 @@ func (p *Payments) GetByUserID(ctx context.Context, userID uuid.UUID) ([]model.P
 		WHERE recipient_id = $1 or sender_id = $1
 		ORDER BY created_at DESC;
 	`
+
 	var payments []model.Payment
+
 	rows, err := p.pool.Query(ctx, query, userID)
 	if err != nil {
 		return nil, domain.NewAppError(http.StatusInternalServerError, err)
 	}
 	defer rows.Close()
+
 	for rows.Next() {
 		var payment model.Payment
+
 		err := rows.Scan(
 			&payment.SenderID,
 			&payment.RecipientID,
@@ -70,11 +86,14 @@ func (p *Payments) GetByUserID(ctx context.Context, userID uuid.UUID) ([]model.P
 		if err != nil {
 			return nil, domain.NewAppError(http.StatusInternalServerError, err)
 		}
+
 		payments = append(payments, payment)
 	}
+
 	err = rows.Err()
 	if err != nil {
 		return nil, domain.NewAppError(http.StatusInternalServerError, err)
 	}
+
 	return payments, nil
 }

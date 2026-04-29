@@ -9,15 +9,15 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+var ErrTest = errors.New("test error")
+
 func TestAppError(t *testing.T) {
 	t.Parallel()
 
-	testErr := errors.New("test error")
-
-	err := domain.NewAppError(http.StatusInternalServerError, testErr)
+	err := domain.NewAppError(http.StatusInternalServerError, ErrTest)
 	require.Error(t, err)
-	require.Equal(t, testErr.Error(), err.Error())
-	require.ErrorIs(t, err, testErr)
+	require.ErrorIs(t, err, ErrTest)
+	require.Equal(t, ErrTest.Error(), err.Error())
 }
 
 func TestNilAppError(t *testing.T) {

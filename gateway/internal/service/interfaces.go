@@ -20,7 +20,7 @@ type IAuth interface {
 	SignIn(ctx context.Context, user *model.SignRequest) (string, error)
 }
 
-type IPayments interface{
+type IPayments interface {
 	Create(ctx context.Context, userID uuid.UUID, payment model.PaymentRequest) error
 	Get(ctx context.Context, userID uuid.UUID) ([]model.Payment, error)
 }

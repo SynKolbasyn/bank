@@ -14,13 +14,12 @@ import (
 const KeyToken string = "user"
 
 func NewJWTConfig(secretKey []byte) echojwt.Config {
-	//nolint:gosec
 	return echojwt.Config{
 		ErrorHandler: func(ctx *echo.Context, err error) error {
 			return domain.ErrorResponse(ctx, domain.NewAppError(http.StatusUnauthorized, err))
 		},
-		SigningKey:  secretKey,
-		ContextKey:  KeyToken,
+		SigningKey: secretKey,
+		ContextKey: KeyToken,
 		NewClaimsFunc: func(_ *echo.Context) jwt.Claims {
 			return new(model.JWTAuthData)
 		},

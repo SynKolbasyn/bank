@@ -15,12 +15,17 @@ var migrationFS embed.FS
 
 func Up(ctx context.Context, pool *pgxpool.Pool) (err error) {
 	conn := stdlib.OpenDBFromPool(pool)
+
 	defer func() {
 		err = errors.Join(err, conn.Close())
 	}()
 
-	goose.SetDialect("postgres")
-    goose.SetBaseFS(migrationFS)
+	err = goose.SetDialect("postgres")
+	if err != nil {
+		return
+	}
+
+	goose.SetBaseFS(migrationFS)
 
 	return goose.UpContext(ctx, conn, "migrations")
 }

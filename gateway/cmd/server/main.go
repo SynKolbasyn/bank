@@ -18,13 +18,21 @@ import (
 )
 
 func main() {
+	err := run()
+	if err != nil {
+		os.Exit(1)
+	}
+}
+
+func run() error {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
 
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		slog.ErrorContext(ctx, "config.LoadConfig", slog.String("error", err.Error()))
-		os.Exit(1)
+
+		return err
 	}
 
 	logger := logger.NewLogger(cfg.Server.LogLevel)
@@ -33,20 +41,23 @@ func main() {
 	pool, err := pgxpool.New(ctx, cfg.Postgres.DSN())
 	if err != nil {
 		slog.ErrorContext(ctx, "pgxpool.New", slog.String("error", err.Error()))
-		os.Exit(1)
+
+		return err
 	}
 	defer pool.Close()
 
 	err = migrations.Up(ctx, pool)
 	if err != nil {
 		slog.ErrorContext(ctx, "migrations.Up", slog.String("error", err.Error()))
-		os.Exit(1)
+
+		return err
 	}
 
 	clientRedpanda, err := redpanda.NewClient(cfg.Redpanda.Hosts, nil)
 	if err != nil {
 		slog.ErrorContext(ctx, "redpanda.NewClient", slog.String("error", err.Error()))
-		os.Exit(1)
+
+		return err
 	}
 	defer clientRedpanda.Close()
 
@@ -54,9 +65,13 @@ func main() {
 		Address:         cfg.Server.Address(),
 		GracefulTimeout: time.Second,
 	}
+
 	err = serverConfig.Start(ctx, app.NewServer(cfg, logger, pool, clientRedpanda))
 	if err != nil {
 		slog.ErrorContext(ctx, "serverConfig.Start", slog.String("error", err.Error()))
-		os.Exit(1)
+
+		return err
 	}
+
+	return nil
 }

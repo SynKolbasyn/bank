@@ -3,7 +3,7 @@ package domain
 import "github.com/go-playground/validator/v10"
 
 type Validator struct {
-    validator *validator.Validate
+	validator *validator.Validate
 }
 
 func NewValidator() *Validator {
@@ -11,5 +11,5 @@ func NewValidator() *Validator {
 }
 
 func (v *Validator) Validate(data any) error {
-    return v.validator.Struct(data)
+	return v.validator.Struct(data)
 }

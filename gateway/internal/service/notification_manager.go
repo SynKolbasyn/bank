@@ -11,13 +11,13 @@ import (
 
 type NotificationManager struct {
 	clientRedpanda *kgo.Client
-	topic string
+	topic          string
 }
 
 func NewNotificationManager(clientRedpanda *kgo.Client, topic string) *NotificationManager {
 	return &NotificationManager{
 		clientRedpanda: clientRedpanda,
-		topic: topic,
+		topic:          topic,
 	}
 }
 
@@ -33,5 +33,6 @@ func (n *NotificationManager) Notify(ctx context.Context, paymentID uuid.UUID) e
 	if err != nil {
 		return domain.NewAppError(http.StatusInternalServerError, err)
 	}
+
 	return nil
 }

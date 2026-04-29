@@ -7,15 +7,22 @@ import (
 )
 
 type Services struct {
-	health service.IHealth
-	auth service.IAuth
+	health   service.IHealth
+	auth     service.IAuth
 	payments service.IPayments
 }
 
-func NewServices(cfg *config.Config, repositories *Repositories, clientRedpanda *kgo.Client) *Services {
+func NewServices(
+	cfg *config.Config,
+	repositories *Repositories,
+	clientRedpanda *kgo.Client,
+) *Services {
 	return &Services{
 		health: service.NewHealth(repositories.health),
-		auth: service.NewAuth(repositories.user, cfg.Auth.Secret),
-		payments: service.NewPayments(repositories.payments, service.NewNotificationManager(clientRedpanda, "payments")),
+		auth:   service.NewAuth(repositories.user, cfg.Auth.Secret),
+		payments: service.NewPayments(
+			repositories.payments,
+			service.NewNotificationManager(clientRedpanda, "payments"),
+		),
 	}
 }
