@@ -11,7 +11,7 @@ type AppError struct {
 
 func NewAppError(errCode int, errs ...error) *AppError {
 	return &AppError{
-		err: errors.Join(errs...),
+		err:     errors.Join(errs...),
 		errCode: errCode,
 	}
 }

@@ -12,13 +12,19 @@ import (
 	"github.com/twmb/franz-go/pkg/kgo"
 )
 
-func StartServer(ctx context.Context, config *config.Config, logger *slog.Logger, pool *pgxpool.Pool, clientRedpanda *kgo.Client) error {
+func StartServer(
+	ctx context.Context,
+	cfg *config.Config,
+	logger *slog.Logger,
+	pool *pgxpool.Pool,
+	clientRedpanda *kgo.Client,
+) error {
 	server := echo.New()
 	server.Logger = logger
 	server.Validator = domain.NewValidator()
 
 	repositories := NewRepositories(pool)
-	services := NewServices(config, repositories)
+	services := NewServices(repositories)
 	handlers := NewHandlers(services)
 
 	setRoutes(server, handlers)
@@ -26,7 +32,7 @@ func StartServer(ctx context.Context, config *config.Config, logger *slog.Logger
 	go StartProcessing(ctx, clientRedpanda, handlers.payments)
 
 	startConfig := echo.StartConfig{
-		Address: config.Server.Address(),
+		Address:         cfg.Server.Address(),
 		GracefulTimeout: time.Second,
 	}
 

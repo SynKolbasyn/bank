@@ -11,5 +11,5 @@ type IHealth interface {
 }
 
 type IPayments interface {
-	Process(ctx context.Context, paymentId uuid.UUID) error
+	Process(ctx context.Context, paymentID uuid.UUID) error
 }

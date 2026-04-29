@@ -26,9 +26,10 @@ func LoadPostgres() *Postgres {
 func (p *Postgres) DSN() string {
 	url := url.URL{
 		Scheme: "postgres",
-		User: url.UserPassword(p.user, p.password),
-		Host: net.JoinHostPort(p.host, p.port),
-		Path: p.database,
+		User:   url.UserPassword(p.user, p.password),
+		Host:   net.JoinHostPort(p.host, p.port),
+		Path:   p.database,
 	}
+
 	return url.String()
 }

@@ -24,11 +24,14 @@ func (u *User) GetBalanceForUpdate(ctx context.Context, userID uuid.UUID) (decim
 		WHERE id = $1::UUID
 		FOR UPDATE;
 	`
+
 	var money decimal.Decimal
+
 	err := u.executor.GetExecutor(ctx).QueryRow(ctx, query, userID).Scan(&money)
 	if err != nil {
 		return decimal.Decimal{}, err
 	}
+
 	return money, nil
 }
 
@@ -39,5 +42,6 @@ func (u *User) SetBalance(ctx context.Context, userID uuid.UUID, money decimal.D
 		WHERE id = $1::UUID;
 	`
 	_, err := u.executor.GetExecutor(ctx).Exec(ctx, query, userID, money)
+
 	return err
 }

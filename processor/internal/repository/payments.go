@@ -25,7 +25,9 @@ func (p *Payments) GetStatusForUpdate(ctx context.Context, paymentID uuid.UUID) 
 	`
 
 	var status string
+
 	err := p.executor.GetExecutor(ctx).QueryRow(ctx, query, paymentID).Scan(&status)
+
 	return status, err
 }
 
@@ -37,6 +39,7 @@ func (p *Payments) SetStatus(ctx context.Context, paymentID uuid.UUID, status st
 	`
 
 	_, err := p.executor.GetExecutor(ctx).Exec(ctx, query, paymentID, status)
+
 	return err
 }
 
@@ -49,6 +52,10 @@ func (p *Payments) GetForUpdate(ctx context.Context, paymentID uuid.UUID) (model
 	`
 
 	var payment model.Payment
-	err := p.executor.GetExecutor(ctx).QueryRow(ctx, query, paymentID).Scan(&payment.Sender, &payment.Recipient, &payment.Amount, &payment.Status)
+
+	err := p.executor.GetExecutor(ctx).
+		QueryRow(ctx, query, paymentID).
+		Scan(&payment.Sender, &payment.Recipient, &payment.Amount, &payment.Status)
+
 	return payment, err
 }

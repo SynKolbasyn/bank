@@ -23,5 +23,6 @@ func (h *Health) Health(ctx *echo.Context) error {
 	if err != nil {
 		return domain.ErrorResponse(ctx, err)
 	}
+
 	return ctx.NoContent(http.StatusOK)
 }

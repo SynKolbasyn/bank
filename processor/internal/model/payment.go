@@ -6,8 +6,8 @@ import (
 )
 
 type Payment struct {
-	Sender uuid.UUID
+	Sender    uuid.UUID
 	Recipient uuid.UUID
-	Amount decimal.Decimal
-	Status string
+	Amount    decimal.Decimal
+	Status    string
 }

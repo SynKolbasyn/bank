@@ -7,17 +7,21 @@ import (
 	"github.com/labstack/echo/v5"
 )
 
-func NewValidator() *CustomValidator {
-	return &CustomValidator{validator: validator.New()}
+type CustomValidator struct {
+	validator *validator.Validate
 }
 
-type CustomValidator struct {
-    validator *validator.Validate
+func NewValidator() *CustomValidator {
+	return &CustomValidator{
+		validator: validator.New(),
+	}
 }
 
 func (cv *CustomValidator) Validate(i any) error {
-    if err := cv.validator.Struct(i); err != nil {
-        return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-    }
-    return nil
+	err := cv.validator.Struct(i)
+	if err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	}
+
+	return nil
 }

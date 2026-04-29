@@ -5,7 +5,6 @@ import (
 
 	"github.com/SynKolbasyn/bank/processor/internal/model"
 	"github.com/SynKolbasyn/bank/processor/internal/repository"
-
 	"github.com/google/uuid"
 )
 
@@ -15,7 +14,11 @@ type Payments struct {
 	repositoryPayments repository.IPayments
 }
 
-func NewPayments(transactionManager repository.TransactionManager, repositoryUser repository.IUser, repositoryPayments repository.IPayments) *Payments {
+func NewPayments(
+	transactionManager repository.TransactionManager,
+	repositoryUser repository.IUser,
+	repositoryPayments repository.IPayments,
+) *Payments {
 	return &Payments{
 		transactionManager: transactionManager,
 		repositoryUser:     repositoryUser,
@@ -29,9 +32,11 @@ func (p *Payments) Process(ctx context.Context, paymentID uuid.UUID) error {
 		if err != nil {
 			return err
 		}
+
 		if status == model.PaymentStatusPending {
 			return p.repositoryPayments.SetStatus(ctx, paymentID, model.PaymentStatusProcessing)
 		}
+
 		return nil
 	})
 	if err != nil {
@@ -71,7 +76,11 @@ func (p *Payments) processPayment(ctx context.Context, paymentID uuid.UUID) erro
 			return err
 		}
 
-		err = p.repositoryUser.SetBalance(ctx, payment.Recipient, recipientMoney.Add(payment.Amount))
+		err = p.repositoryUser.SetBalance(
+			ctx,
+			payment.Recipient,
+			recipientMoney.Add(payment.Amount),
+		)
 		if err != nil {
 			return err
 		}

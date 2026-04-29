@@ -11,6 +11,7 @@ import (
 
 func TestNewLogger(t *testing.T) {
 	t.Parallel()
+
 	data := []slog.Level{
 		slog.LevelDebug,
 		slog.LevelInfo,
@@ -19,6 +20,8 @@ func TestNewLogger(t *testing.T) {
 	}
 	for _, level := range data {
 		t.Run(fmt.Sprintf("level-%s", level), func(t *testing.T) {
+			t.Parallel()
+
 			logger := logger.NewLogger(level)
 			require.NotNil(t, logger)
 		})

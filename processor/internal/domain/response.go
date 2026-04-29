@@ -19,5 +19,6 @@ func ErrorResponse(ctx *echo.Context, err error) error {
 	errorResponse := model.ErrorResponse{
 		Error: http.StatusText(statusCode),
 	}
+
 	return ctx.JSON(appError.errCode, errorResponse)
 }

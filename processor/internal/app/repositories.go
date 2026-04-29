@@ -14,6 +14,7 @@ type Repositories struct {
 
 func NewRepositories(pool *pgxpool.Pool) *Repositories {
 	executor := repository.NewExecutor(pool)
+
 	return &Repositories{
 		transactionManager: executor,
 		health:             repository.NewHealth(pool),
