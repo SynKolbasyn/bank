@@ -20,7 +20,7 @@ import (
 func main() {
 	ctx, cancel := signal.NotifyContext(context.Background(), os.Interrupt, syscall.SIGTERM)
 	defer cancel()
-	
+
 	cfg, err := config.LoadConfig()
 	if err != nil {
 		slog.ErrorContext(ctx, "config.LoadConfig", slog.String("error", err.Error()))
@@ -51,8 +51,8 @@ func main() {
 	defer clientRedpanda.Close()
 
 	serverConfig := echo.StartConfig{
-		Address: cfg.Server.Address(),
-		GracefulTimeout: 1 * time.Second,
+		Address:         cfg.Server.Address(),
+		GracefulTimeout: time.Second,
 	}
 	err = serverConfig.Start(ctx, app.NewServer(cfg, logger, pool, clientRedpanda))
 	if err != nil {
